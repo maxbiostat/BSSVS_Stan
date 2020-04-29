@@ -12,8 +12,7 @@ options(mc.cores = 4)
 probZero <- 1/2
 Q <- 1-((probZero)^(1/simu_data$P))
 devtools::source_url("https://raw.githubusercontent.com/maxbiostat/opinion_pooling/master/code/beta_elicitator.r")
-# gammaPars <- elicit_beta(m0 = Q, c = 1) ## elicit a prior with mean Q and coefficient of variation 1.
-gammaPars <- list(a = 1, b = 1)
+gammaPars <- elicit_beta(m0 = Q, c = 1) ## elicit a prior with mean Q and coefficient of variation 1.
 curve(dbeta(x, gammaPars$a, gammaPars$b), ylab = "density", xlab = expression(gamma[i]), main = "Probability of inclusion")
 Ind <- expand.grid(replicate(simu_data$P, 0:1, simplify = FALSE))
 BSSVS.data <- list(N = length(simu_data$Y),
@@ -61,7 +60,7 @@ gammas.hat <- colMeans(extract(marg_BSSVS.posterior, 'gamma')$gamma)
 getBF <- function(p, q = .5){
   {p*(1-q)}/{q*(1-p)}
 }
-sapply(gammas.hat, getBF) ## weird Bayes factors
+sapply(gammas.hat, getBF, q = Q) ## weird Bayes factors
 
 models <- extract(marg_BSSVS.posterior, 'model_index')$model_index
 which(BSSVS.data$indicators[median(models), ] == 1)
