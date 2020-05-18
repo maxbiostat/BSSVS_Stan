@@ -3,16 +3,13 @@ data{
   int<lower=0> P;
   matrix[N, P] X;
   vector[N] Y;
-  real<lower=0> tauB0;
-  real<lower=0> tau;
   int<lower=0> K;
   int indicators[K, P];
-  real<lower=0> w;
-  real<lower=0> a_g;
-  real<lower=0> b_g;
+  real<lower=0> a_p;
+  real<lower=0> b_p;
 } 
 parameters{
-  real<lower=0, upper=1> gamma[P];
+  real<lower=0, upper=1> p[P];
   real alpha;
   vector[P] beta;
   real<lower=0> sigma_Y;
@@ -21,15 +18,15 @@ transformed parameters{
   vector[K] lp;
   for(k in 1:K){
       lp[k] = normal_lpdf(Y |X * (beta .* to_vector(indicators[k, ])) + alpha, sigma_Y);
-      lp[k] += bernoulli_lpmf(indicators[k, ] | gamma);
+      lp[k] += bernoulli_lpmf(indicators[k, ] | p);
   }
 }
 model{
   target += log_sum_exp(lp);
-  alpha ~ normal(0, 1/sqrt(tauB0));
-  beta ~ normal(0, 1/sqrt(tau));
+  alpha ~ normal(0, 10);
+  beta ~ normal(0, 5);
   sigma_Y ~ cauchy(0, 2.5);
-  gamma ~ beta(a_g, b_g);
+  p ~ beta(a_p, b_p);
 }
 generated quantities{
   int model_index;
